@@ -1,0 +1,75 @@
+
+chcclp session set to cdc;
+
+# Turn on verbose output.
+set verbose;
+
+# Setting variables.
+set variable name "ACCESS_HOSTNAME" value "zodak";
+set variable name "ACCESS_PORT" value "10101";
+set variable name "ACCESS_USERNAME" value "automon";
+set variable name "ACCESS_PASSWORD" value "P@ssw0rd";
+set variable name "SOURCE_DATASTORE" value "WRK1";
+set variable name "TARGET_DATASTORE" value "KAFKA1";
+set variable name "SUBSCRIPTION_BASE" value "REFBIG";
+set variable name "EXPORT_PATH" value "C:\\TEMP\\";
+
+# Connecting to Access Server.
+connect server
+    hostname "%ACCESS_HOSTNAME%"
+    port "%ACCESS_PORT%"
+    username "%ACCESS_USERNAME%"
+    password "%ACCESS_PASSWORD%";
+
+# Connecting to the source and target datastores.
+connect datastore name "%SOURCE_DATASTORE%";
+connect datastore name "%TARGET_DATASTORE%";
+
+# Setting the datastore context.
+select datastore name "%SOURCE_DATASTORE%" context source;
+select datastore name "%TARGET_DATASTORE%" context target;
+
+# Export the subscription.
+export subscription name "%SUBSCRIPTION_BASE%01" filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" ;
+
+
+# Duplicate the subscription N times
+
+import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%02" ;
+
+import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%03" ;
+
+import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%04" ;
+
+import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%05" ;
+
+
+# Update the filtering conditions
+
+select subscription name "%SUBSCRIPTION_BASE%02" ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=1' select yes;
+unlock subscription;
+
+select subscription name "%SUBSCRIPTION_BASE%03" ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=2' select yes;
+unlock subscription;
+
+select subscription name "%SUBSCRIPTION_BASE%04" ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=3' select yes;
+unlock subscription;
+
+select subscription name "%SUBSCRIPTION_BASE%05" ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=4' select yes;
+unlock subscription;
+
+# Disconnecting from datastores and Access Server.
+disconnect datastore name "%SOURCE_DATASTORE%";
+disconnect datastore name "%TARGET_DATASTORE%";
+
+# Disconnect from Access Server and terminate the script.
+disconnect server;
+exit;
