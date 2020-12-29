@@ -11,7 +11,6 @@ set variable name "ACCESS_USERNAME" value "automon";
 set variable name "ACCESS_PASSWORD" value "P@ssw0rd";
 set variable name "SOURCE_DATASTORE" value "WRK1";
 set variable name "TARGET_DATASTORE" value "KAFKA1";
-set variable name "SUB_MAIN" value "BIGTAB1";
 set variable name "SUB_BASE" value "REFBIG";
 set variable name "EXPORT_PATH" value "C:\\TEMP\\";
 
@@ -31,20 +30,18 @@ select datastore name "%SOURCE_DATASTORE%" context source;
 select datastore name "%TARGET_DATASTORE%" context target;
 
 # Export the subscription.
-export subscription name "%SUB_MAIN%" filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" ;
+export subscription name "%SUB_BASE%01" filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" ;
 
 
-# Duplicate the subscription N times
+# Duplicate the subscription N-1 times.
 
-import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%01" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%02" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%02" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%03" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%03" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%04" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%04" ;
-
-import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%05" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%05" ;
 
 
 # Update the filtering conditions
