@@ -1,0 +1,64 @@
+
+chcclp session set to cdc;
+
+# Turn on verbose output.
+set verbose;
+
+# Setting variables.
+set variable name "ACCESS_HOSTNAME" value "zodak";
+set variable name "ACCESS_PORT" value "10101";
+set variable name "ACCESS_USERNAME" value "automon";
+set variable name "ACCESS_PASSWORD" value "P@ssw0rd";
+set variable name "SOURCE_DATASTORE" value "WRK1";
+set variable name "TARGET_DATASTORE" value "KAFKA1";
+set variable name "SUB_MAIN" value "BIGTAB1";
+set variable name "SUB_BASE" value "REFBIG";
+
+# Connecting to Access Server.
+connect server
+    hostname "%ACCESS_HOSTNAME%"
+    port "%ACCESS_PORT%"
+    username "%ACCESS_USERNAME%"
+    password "%ACCESS_PASSWORD%";
+
+# Connecting to the source and target datastores.
+connect datastore name "%SOURCE_DATASTORE%";
+connect datastore name "%TARGET_DATASTORE%";
+
+# Setting the datastore context.
+select datastore name "%SOURCE_DATASTORE%" context source;
+select datastore name "%TARGET_DATASTORE%" context target;
+
+
+# Mark the table capture point in the source subscription
+
+select subscription name "%SUB_MAIN%" ;
+lock subscription;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+unlock subscription;
+
+# Now start the refresh
+
+select subscription name "%SUB_BASE%01" ;
+start refresh;
+
+select subscription name "%SUB_BASE%02" ;
+start refresh;
+
+select subscription name "%SUB_BASE%03" ;
+start refresh;
+
+select subscription name "%SUB_BASE%04" ;
+start refresh;
+
+select subscription name "%SUB_BASE%05" ;
+start refresh;
+
+# Disconnecting from datastores and Access Server.
+disconnect datastore name "%SOURCE_DATASTORE%";
+disconnect datastore name "%TARGET_DATASTORE%";
+
+# Disconnect from Access Server and terminate the script.
+disconnect server;
+exit;

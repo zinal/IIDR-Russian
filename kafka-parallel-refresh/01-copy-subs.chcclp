@@ -11,7 +11,8 @@ set variable name "ACCESS_USERNAME" value "automon";
 set variable name "ACCESS_PASSWORD" value "P@ssw0rd";
 set variable name "SOURCE_DATASTORE" value "WRK1";
 set variable name "TARGET_DATASTORE" value "KAFKA1";
-set variable name "SUBSCRIPTION_BASE" value "REFBIG";
+set variable name "SUB_MAIN" value "BIGTAB1";
+set variable name "SUB_BASE" value "REFBIG";
 set variable name "EXPORT_PATH" value "C:\\TEMP\\";
 
 # Connecting to Access Server.
@@ -30,38 +31,45 @@ select datastore name "%SOURCE_DATASTORE%" context source;
 select datastore name "%TARGET_DATASTORE%" context target;
 
 # Export the subscription.
-export subscription name "%SUBSCRIPTION_BASE%01" filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" ;
+export subscription name "%SUB_MAIN%" filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" ;
 
 
 # Duplicate the subscription N times
 
-import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%02" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%01" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%03" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%02" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%04" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%03" ;
 
-import subscription filename "C:\\TEMP\\cdc-%SUBSCRIPTION_BASE%.xml" type new name "%SUBSCRIPTION_BASE%05" ;
+import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%04" ;
+
+import subscription filename "C:\\TEMP\\cdc-%SUB_MAIN%.xml" type new name "%SUB_BASE%05" ;
 
 
 # Update the filtering conditions
 
-select subscription name "%SUBSCRIPTION_BASE%02" ;
+select subscription name "%SUB_BASE%01" ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=0' select yes;
+unlock subscription;
+
+select subscription name "%SUB_BASE%02" ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=1' select yes;
 unlock subscription;
 
-select subscription name "%SUBSCRIPTION_BASE%03" ;
+select subscription name "%SUB_BASE%03" ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=2' select yes;
 unlock subscription;
 
-select subscription name "%SUBSCRIPTION_BASE%04" ;
+select subscription name "%SUB_BASE%04" ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=3' select yes;
 unlock subscription;
 
-select subscription name "%SUBSCRIPTION_BASE%05" ;
+select subscription name "%SUB_BASE%05" ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=4' select yes;
 unlock subscription;
