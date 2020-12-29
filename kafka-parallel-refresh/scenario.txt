@@ -83,3 +83,20 @@ for mirroring.
 Ensure that the changes still go to the expected target topic.
 
 kafka-topics.sh --list --zookeeper localhost:2181 | grep -vE '[-]commitstream$'
+
+
+12. Final cleanup
+
+./kafka/bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics \
+  --entity-name kafka1.bigtab1.sourcedb.cdcdemo.tab_big \
+  --describe
+
+./kafka/bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics \
+  --entity-name kafka1.bigtab1.sourcedb.cdcdemo.tab_big \
+  --alter --add-config retention.ms=1000
+
+<wait for some time, 1+ minute>
+
+./kafka/bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics \
+  --entity-name kafka1.bigtab1.sourcedb.cdcdemo.tab_big \
+  --alter --delete-config retention.ms
