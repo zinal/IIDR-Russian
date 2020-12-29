@@ -1,0 +1,20 @@
+Replicated table: CDCDEMO.TAB_BIG (100M rows)
+Table structure and sample data in database-oracle.sql
+
+Subscription BIGTAB1 (Oracle to Kafka)
+
+Kafka properties (00-sub-config.png)
+    ZooKeeper mode, kafko:2181
+    Schema registy kafko:8081
+    Topic prefix and commit stream options are not configured
+
+User exit properties (01-user-exit.png)
+    com.datamirror.ts.target.publication.userexit.sample.kafka.KcopMultiRowAvroLiveAuditIntegrated
+    -file:/home/cdcuser/kafka-avro-config.properties
+
+$ cat kafka-avro-config.properties 
+schema.registry.url=http://kafko:8081
+audit.jcfs=ENTTYP,CCID
+before.update.record.mode=ALWAYS
+default.null.JCF.value=""
+null.UB.ENTTYP.override="UB"
