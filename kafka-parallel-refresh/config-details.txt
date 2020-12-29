@@ -18,3 +18,28 @@ audit.jcfs=ENTTYP,CCID
 before.update.record.mode=ALWAYS
 default.null.JCF.value=""
 null.UB.ENTTYP.override="UB"
+
+Steps:
+
+0. Install the CdcMod.class extension to the source agent's lib directory
+(https://github.com/zinal/IIDR-Masker/tree/master/simple-masker/bin)
+
+1. Copy the BIGTAB1 subscription in MC, creating the REFBIG01 subscription
+(screens 10 to 15)
+
+2. Set the filter in MC, using the CdcMod.class extension (screen 20)
+
+3. Prepare the CHCCLP script to duplicate and adjust the REFBIG01 N-1 times
+(see example in prepare-refresh-subs.chcclp)
+
+4. Run the CHCCLP script through "chcclp -f scriptFile".
+Ensure that there are no errors.
+Worth to debug the script first on a single copy of subscription.
+
+5. Check the properties of the newly created subscriptions (screen 21).
+
+6. Prepare the CHCCLP script to:
+(a) mark the table capture point for the BIGTAB1 subscription
+(b) start the refresh for all the remaining subscriptions
+
+
