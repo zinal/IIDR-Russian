@@ -36,37 +36,50 @@ export subscription name "%SUB_BASE%01" filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" 
 # Duplicate the subscription N-1 times.
 
 import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%02" ;
+select subscription name "%SUB_BASE%02" ;
+unlock subscription ;
 
 import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%03" ;
+select subscription name "%SUB_BASE%03" ;
+unlock subscription ;
 
 import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%04" ;
+select subscription name "%SUB_BASE%04" ;
+unlock subscription ;
 
 import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%05" ;
+select subscription name "%SUB_BASE%05" ;
+unlock subscription ;
 
 
 # Update the filtering conditions
 
 select subscription name "%SUB_BASE%01" ;
+lock subscription ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=0' select yes;
 unlock subscription;
 
 select subscription name "%SUB_BASE%02" ;
+lock subscription ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=1' select yes;
 unlock subscription;
 
 select subscription name "%SUB_BASE%03" ;
+lock subscription ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=2' select yes;
 unlock subscription;
 
 select subscription name "%SUB_BASE%04" ;
+lock subscription ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=3' select yes;
 unlock subscription;
 
 select subscription name "%SUB_BASE%05" ;
+lock subscription ;
 select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=4' select yes;
 unlock subscription;
