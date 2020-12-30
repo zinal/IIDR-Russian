@@ -22,18 +22,11 @@ null.UB.ENTTYP.override="UB"
 Steps:
 
 
-0. Install the CdcMod.class extension to the source agent's lib directory
-(https://github.com/zinal/IIDR-Masker/tree/master/simple-masker/bin)
-
-
 1. Copy the BIGTAB1 subscription in MC, creating the REFBIG01 subscription
 (screens 10 to 15)
 
 
-2. Set the filter in MC, using the CdcMod.class extension (screen 20)
-
-
-3. Set the subscription prefix to get the same target queue.
+2. Set the subscription prefix to get the same target queue.
 
 Topic name example: kafka1.ora1.sourcedb.cdcdemo.tab0
 Topic name format: "<CDC instance>.<SUB name lowercase>.sourcedb.<schema>.<table>"
@@ -43,28 +36,29 @@ So, we need to set the prefix to "<CDC instance>.<Sub name lowercase>.sourcedb",
 which is "kafka1.ora1.sourcedb" (screen 21)
 
 
-4. Prepare the CHCCLP script to duplicate and adjust the REFBIG01 N-1 times
-(see example in prepare-refresh-subs.chcclp)
+3. Prepare the CHCCLP script to duplicate and adjust the REFBIG01 N-1 times
+(see example in prepare-refresh-subs.chcclp).
+We will use the Refresh filter to split the full set of records into the partitions.
 
 
-5. Run the CHCCLP script through "chcclp -f scriptFile".
+4. Run the CHCCLP script through "chcclp -f scriptFile".
 Ensure that there are no errors.
 Worth to debug the script first on a single copy of subscription.
 
 
-6. Check the properties of the newly created subscriptions (screen 22).
+5. Check the properties of the newly created subscriptions (screen 22).
 
 
-7. Prepare the CHCCLP script to:
+6. Prepare the CHCCLP script to:
 (a) mark the table capture point for the BIGTAB1 subscription
 (b) start the refresh for all the remaining subscriptions
 
 
-8. Start the workload simulation script, so that we have changes
+7. Start the workload simulation script, so that we have changes
 over our large table.
 
 
-9. Start the refresh using this script.
+8. Start the refresh using this script.
 Validate that the data goes to the single expected topic,
 in our case being "kafka1.bigtab1.sourcedb.cdcdemo.tab_big"
 
@@ -72,12 +66,12 @@ kafka-topics.sh --list --zookeeper localhost:2181
 kafka-topics.sh --list --zookeeper localhost:2181 | grep -vE '[-]commitstream$'
 
 
-10. Monitor the refresh progress.
+9. Monitor the refresh progress.
 It is possible to automate catching the end of refresh through CHCCLP's 
 "monitor replication" command.
 
 
-11. After the Refresh is complete, start the original subscription
+10. After the Refresh is complete, start the original subscription
 for mirroring.
 
 Ensure that the changes still go to the expected target topic.
@@ -85,7 +79,7 @@ Ensure that the changes still go to the expected target topic.
 kafka-topics.sh --list --zookeeper localhost:2181 | grep -vE '[-]commitstream$'
 
 
-12. Final cleanup
+11. Final cleanup
 
 ./kafka/bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics \
   --entity-name kafka1.bigtab1.sourcedb.cdcdemo.tab_big \

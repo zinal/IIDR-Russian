@@ -51,38 +51,26 @@ import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_
 select subscription name "%SUB_BASE%05" ;
 unlock subscription ;
 
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%06" ;
+select subscription name "%SUB_BASE%06" ;
+unlock subscription ;
 
-# Update the filtering conditions
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%07" ;
+select subscription name "%SUB_BASE%07" ;
+unlock subscription ;
 
-select subscription name "%SUB_BASE%01" ;
-lock subscription ;
-select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
-modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=0' select yes;
-unlock subscription;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%08" ;
+select subscription name "%SUB_BASE%08" ;
+unlock subscription ;
 
-select subscription name "%SUB_BASE%02" ;
-lock subscription ;
-select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
-modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=1' select yes;
-unlock subscription;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%09" ;
+select subscription name "%SUB_BASE%09" ;
+unlock subscription ;
 
-select subscription name "%SUB_BASE%03" ;
-lock subscription ;
-select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
-modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=2' select yes;
-unlock subscription;
+import subscription filename "C:\\TEMP\\cdc-%SUB_BASE%.xml" type new name "%SUB_BASE%10" ;
+select subscription name "%SUB_BASE%10" ;
+unlock subscription ;
 
-select subscription name "%SUB_BASE%04" ;
-lock subscription ;
-select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
-modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=3' select yes;
-unlock subscription;
-
-select subscription name "%SUB_BASE%05" ;
-lock subscription ;
-select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
-modify table mapping rowFilter '%USERFUNC("JAVA","CdcMod", A, 5)=4' select yes;
-unlock subscription;
 
 # Disconnecting from datastores and Access Server.
 disconnect datastore name "%SOURCE_DATASTORE%";

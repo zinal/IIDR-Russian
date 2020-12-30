@@ -1,0 +1,93 @@
+#
+# AUTO-GENERATED SAMPLE SCRIPT
+#
+# Generated from Management Console on Dec 30, 2020 11:21:10 AM
+#
+# Base subscription: REFBIG01
+# Source datastore:  WRK1
+# Target datastore:  KAFKA1
+#
+# The sample script to configure a subscription does not include the following items:
+#
+# -- subscription notification settings
+# -- encoding settings for subscriptions that have not been upgraded to auto-encoding
+# -- derived column or target expressions with a mix of single and double quotes
+# -- table mapping member identifiers
+# -- incomplete table mappings
+# -- datastore connection credentials when they are not set in Access Manager
+#
+
+chcclp session set to cdc;
+
+# Turn on verbose output.
+set verbose;
+
+# Setting variables.
+set variable name "ACCESS_HOSTNAME" value "zodak";
+set variable name "ACCESS_PORT" value "10101";
+set variable name "ACCESS_USERNAME" value "automon";
+set variable name "ACCESS_PASSWORD" value "P@ssw0rd";
+set variable name "SOURCE_DATASTORE" value "WRK1";
+set variable name "TARGET_DATASTORE" value "KAFKA1";
+set variable name "SUBSCRIPTION" value "REFBIG01";
+
+# Connecting to Access Server.
+connect server
+    hostname "%ACCESS_HOSTNAME%"
+    port "%ACCESS_PORT%"
+    username "%ACCESS_USERNAME%"
+    password "%ACCESS_PASSWORD%";
+
+# Connecting to the source and target datastores.
+connect datastore name "%SOURCE_DATASTORE%";
+connect datastore name "%TARGET_DATASTORE%";
+
+# Setting the datastore context.
+select datastore name "%SOURCE_DATASTORE%" context source;
+select datastore name "%TARGET_DATASTORE%" context target;
+
+# Adding the subscription.
+add subscription name "%SUBSCRIPTION%";
+
+# Locking the subscription.
+lock subscription;
+
+# Adding table mapping TAB_BIG - Kafka
+add table mapping
+    sourceSchema "CDCDEMO"
+    sourceTable "TAB_BIG";
+mark capture point;
+
+# Setting Kafka target key columns for TAB_BIG - Kafka
+modify table mapping
+    primaryKeyColumns "A";
+
+# Setting the subscription user exit
+modify subscription user exit
+    type "javaclass"
+    classname "com.datamirror.ts.target.publication.userexit.sample.kafka.KcopMultiRowAvroLiveAuditIntegrated"
+    parameter "-file:/home/cdcuser/kafka-avro-config.properties";
+
+# Setting target Kafka properties
+modify subscription kafka properties
+    communicationMethod "ZooKeeper"
+    kafkaHost "kafko"
+    kafkaPort "2181"
+    encrypted no
+    topicPrefix "kafka1.bigtab1.sourcedb"
+    commitStreamTopicName ""
+    schemaRegistryHost "kafko"
+    schemaRegistryPort "8081"
+    schemaRegistryEncrypted no;
+
+# Unlocking the subscription.
+unlock subscription;
+
+# Disconnecting from datastores and Access Server.
+disconnect datastore name "%SOURCE_DATASTORE%";
+disconnect datastore name "%TARGET_DATASTORE%";
+
+# Disconnect from Access Server and terminate the script.
+disconnect server;
+exit;
+

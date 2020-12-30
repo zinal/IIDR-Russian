@@ -38,6 +38,80 @@ select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
 mark capture point;
 unlock subscription;
 
+
+# Update the filtering conditions
+
+select subscription name "%SUB_BASE%01" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=0" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%02" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=1" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%03" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=2" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%04" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=3" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%05" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=4" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%06" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=5" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%07" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=6" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%08" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=7" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%09" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=8" ;
+unlock subscription;
+
+select subscription name "%SUB_BASE%10" ;
+lock subscription ;
+select table mapping sourceSchema "CDCDEMO" sourceTable "TAB_BIG";
+mark capture point;
+flag refresh type standard enableSubset true sourceSql "MOD(A,10)=9" ;
+unlock subscription;
+
+
 # Now start the refresh
 
 select subscription name "%SUB_BASE%01" ;
@@ -54,6 +128,22 @@ start refresh;
 
 select subscription name "%SUB_BASE%05" ;
 start refresh;
+
+select subscription name "%SUB_BASE%06" ;
+start refresh;
+
+select subscription name "%SUB_BASE%07" ;
+start refresh;
+
+select subscription name "%SUB_BASE%08" ;
+start refresh;
+
+select subscription name "%SUB_BASE%09" ;
+start refresh;
+
+select subscription name "%SUB_BASE%10" ;
+start refresh;
+
 
 # Disconnecting from datastores and Access Server.
 disconnect datastore name "%SOURCE_DATASTORE%";
