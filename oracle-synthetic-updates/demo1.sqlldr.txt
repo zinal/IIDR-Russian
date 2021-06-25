@@ -1,0 +1,14 @@
+1,Ein
+2,Zvei
+3,Drei
+4,Polizay
+100,sdfjasldfjlsjf
+101,skfslfsldjkfslfjsd
+102,ldfgsldjflsjdflsjfd
+103,ldfglsdjflskjflsdkjf
+104,sdkfgslflsjfsdfksjdf
+105,sdfksljflskjdfskdlf
+106,sdfksldkfjslkjflsjflsjkdf
+600,kjbsdfkahfkahksahksdhf
+601,lsdflsdjflksjflksdjflskdjf
+602,lsdflsdjflskdjfslkdfjsd
