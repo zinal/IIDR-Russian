@@ -1,0 +1,160 @@
+# Preparation
+
+/datum/sw/cdc-access/bin/chcclp 
+Repl > connect server hostname localhost port 10101 username automon password "P@ssw0rd";
+Repl > connect datastore name DB2SAM;
+Repl > select subscription name DB2C;
+Repl > show context;
+
+# Run some SQL statements, check that they were replicated
+db2 connect to sample
+db2 -t
+
+UPDATE cdcdemo.tab0
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1001;
+
+UPDATE cdcdemo.tab1
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1002;
+
+# DDL over the first table
+
+alter table cdcdemo.tab0 add column z double default -1 not null;
+
+# Two more UPDATE statements
+
+UPDATE cdcdemo.tab0
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1003;
+
+UPDATE cdcdemo.tab1
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1004;
+
+
+# DDL over the second table
+
+alter table cdcdemo.tab1 add column z double default -1 not null;
+
+# And two more UPDATE statements
+
+UPDATE cdcdemo.tab0
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1005;
+
+UPDATE cdcdemo.tab1
+SET b=dbms_random.string('x', dbms_random.value(20, 35)),
+    l='xxx01', c=CURRENT TIMESTAMP WHERE a=1006;
+
+
+# *** At this point the subscription has failed on TAB0
+# *** Observation 1: statistics show 2 replicated UPDATE rows.
+
+
+# Adding the Z column to target table TAB0
+
+alter table cdctarget.tab0 add column z double default -1 not null;
+
+# Clear the staging store and re-add TAB0 source table
+
+/datum/sw/cdc-db2/bin/dmclearstagingstore -I db2sam
+/datum/sw/cdc-db2/bin/dmreaddtable -I db2sam -t CDCDEMO.TAB0 -a
+
+# Describe the subscription and re-assign TAB0
+
+/datum/sw/cdc-access/bin/chcclp -b -f `pwd`/repair-DB2C-tab0.chcclp
+
+Repl > lock subscription;
+Repl > describe subscription;
+Repl > select table mapping sourceSchema "CDCDEMO" sourceTable "TAB0";
+Repl > reassign table mapping;
+Repl > unlock subscription;
+Repl > start mirroring;
+
+
+# *** At this point the subscription has failed on TAB1
+# *** Observation 2: statistics show 0 replicated UPDATE rows
+# *** (there were two updates between altering TAB0 and TAB1)
+
+
+# Adding the Z column to target table TAB1
+
+alter table cdctarget.tab1 add column z double default -1 not null;
+
+# Clear the staging store and re-add TAB1 source table
+
+/datum/sw/cdc-db2/bin/dmclearstagingstore -I db2sam
+/datum/sw/cdc-db2/bin/dmreaddtable -I db2sam -t CDCDEMO.TAB1 -a
+
+# Describe the subscription and re-assign TAB0
+
+/datum/sw/cdc-access/bin/chcclp -b -f `pwd`/repair-DB2C-tab1.chcclp
+
+Repl > lock subscription;
+Repl > describe subscription;
+Repl > select table mapping sourceSchema "CDCDEMO" sourceTable "TAB1";
+Repl > reassign table mapping;
+Repl > unlock subscription;
+Repl > start mirroring;
+
+# *** At this point the subscription starts working
+# *** Observation 3: statistics show 4 replicated UPDATE rows
+# *** (probably all 4 updates since the alteration of TAB0)
+
+
+# Compare the source and target data
+
+****
+db2 -t
+
+describe table cdcdemo.tab1;
+describe table cdctarget.tab0;
+
+select count(*) from cdcdemo.tab1 src, cdctarget.tab1 dst where src.a=dst.a 
+  and (src.b<>dst.b or src.l<>dst.l or src.c<>dst.c or src.q<>dst.q or src.z<>dst.z);
+
+# *** Observation 4: there is 1 row which differs.
+
+select count(*) from cdcdemo.tab1 src, cdctarget.tab1 dst where src.a=dst.a 
+  and (src.b<>dst.b or src.l<>dst.l or src.c<>dst.c or src.q<>dst.q);
+
+# *** Observation 5: now zero rows are counted
+# *** (so the difference is in the Z field value)
+
+select z, count(*) from cdctarget.tab1 where z<>-1 group by z 
+  order by count(*) desc fetch first 5 rows only;
+
+# *** Observation 6: Z field has value 0.0 instead of the expected -1.0
+
+
+
+# Final cleanup (revert table structure)
+
+db2 alter table cdctarget.tab0 drop column z
+db2 alter table cdctarget.tab1 drop column z
+db2 alter table cdcdemo.tab0 drop column z
+db2 alter table cdcdemo.tab1 drop column z
+
+db2 reorg table cdctarget.tab0
+db2 reorg table cdctarget.tab1
+db2 reorg table cdcdemo.tab0
+db2 reorg table cdcdemo.tab1
+
+/datum/sw/cdc-db2/bin/dmclearstagingstore -I db2sam
+/datum/sw/cdc-db2/bin/dmreaddtable -I db2sam -t CDCDEMO.TAB0 -a
+/datum/sw/cdc-db2/bin/dmreaddtable -I db2sam -t CDCDEMO.TAB1 -a
+
+/datum/sw/cdc-access/bin/chcclp -b -f `pwd`/undo-DB2C.chcclp
+
+Repl > lock subscription;
+Repl > describe subscription;
+Repl > select table mapping sourceSchema "CDCDEMO" sourceTable "TAB0";
+Repl > reassign table mapping;
+Repl > flag refresh;
+Repl > select table mapping sourceSchema "CDCDEMO" sourceTable "TAB1";
+Repl > reassign table mapping;
+Repl > flag refresh;
+Repl > unlock subscription;
+Repl > start mirroring;
+

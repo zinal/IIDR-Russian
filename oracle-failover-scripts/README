@@ -1,0 +1,4 @@
+Author: daniel.lema@co.ibm.com
+
+ClusterIDR.sh is the script... It depends on two environment variables: CDC_INST_DIR and CDC_STAGING_DIR.
+Wrapper.sh has paths and usernames hard-coded... For some reason, the client for which I developed them ran ClusterWare on root, so I needed to wrap the original script to circumvent the issue and there I have a temporary solution
